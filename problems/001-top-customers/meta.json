@@ -1,0 +1,6 @@
+{
+  "title": "Top Customers of 2024",
+  "difficulty": "easy",
+  "ordered": true,
+  "topics": ["JOIN", "WHERE", "GROUP BY", "HAVING", "ORDER BY", "date ranges"]
+}

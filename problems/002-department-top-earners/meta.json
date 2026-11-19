@@ -1,0 +1,6 @@
+{
+  "title": "Department Top Earners",
+  "difficulty": "medium",
+  "ordered": true,
+  "topics": ["JOIN", "subqueries", "window functions", "ties", "NULLs"]
+}
