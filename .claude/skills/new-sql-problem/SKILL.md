@@ -37,6 +37,7 @@ problems/NNN-slug/
   answer.sql             starter file the user writes in (comments only, no SQL!)
   tests/NN-what-it-checks.sql   hidden datasets: each is a COMPLETE, standalone set of INSERTs
   solution/reference.sql the reference query (one SELECT, which can use WITH)
+  solution/explanation.md why the reference works (spoilers are fine here)
 ```
 
 The harness loads `schema.sql` + one dataset into a fresh database and runs both the reference and the
@@ -98,10 +99,38 @@ If two reasonable readings of the prompt give different results on any dataset, 
 Structure: `# NNN · Title`, a difficulty/suggested-time line, the business question, rules/clarifications,
 `## Schema` (the CREATE TABLEs, FKs shown as comments are fine), `## Output` (a table of columns + the sort
 order), `## Example` (the seed tables + expected output), and finally the line
-"Your query will also be run against several hidden datasets that use the same schema."
+"Your query will also be run against several hidden datasets that use the same schema.", followed by
+a `## Hints` section (format below).
 
 **Don't** hint at the solution technique, and don't describe the hidden tests. You may (and should) state
 rules that a careful reader needs, like "ties: return all", "ignore unassigned employees".
+
+#### Hints (required)
+
+End problem.md with exactly 3 hints, each in a collapsed `<details>` block so it stays hidden until
+the user opens it. Leave blank lines inside the block so the Markdown in it renders:
+
+```markdown
+## Hints
+
+Each hint gives away a little more than the one before it. Try the problem before you open them.
+
+<details>
+<summary>Hint 1</summary>
+
+...
+
+</details>
+```
+
+Each hint should give away more than the one before it:
+1. **Nudge**: how to break the problem into steps, or which kind of clause or concept matters. No syntax.
+2. **The main pitfall**: point at the most important trap (e.g. DATETIME boundaries, ties, NULLs) without
+   writing the fix in full.
+3. **The shape**: outline the query structure, or name the approaches that work, without being a
+   copy-pasteable answer.
+
+Hints may point at traps in general terms, but must not describe the hidden test datasets.
 
 Generate the Example section; don't hand-write it: `./sqlt.sh sample NNN` prints the seed tables and the
 reference output as Markdown.
@@ -116,6 +145,18 @@ reference output as Markdown.
 
 ```
 
+### solution/explanation.md
+
+Explains why the reference solution works, for when the user has finished the problem or given up. Copy
+the structure from an existing problem (e.g. `problems/002-department-top-earners/solution/explanation.md`):
+- `# NNN · Title: why the solution works`, then the reference query in a `sql` block.
+- **How it works**: go through the clauses in order (in the order MySQL evaluates them, when that
+  helps) and say why each one is needed.
+- **The traps**: a table with columns *Trap · What goes wrong · Why the reference is safe*, with one
+  row for each hidden test's mistake (plus any other common mistakes).
+- **Other correct ways to write it**: 1–2 alternatives in a different style (the one you write in
+  verification step 3 is a good choice), with a note on the trade-offs.
+
 ## 3. Verify (required)
 
 1. MySQL must be running: `./sqlt.sh up` (it doesn't hurt if it's already up).
@@ -126,6 +167,7 @@ reference output as Markdown.
 4. For **each** hidden test, write the plausible wrong query it targets in the scratchpad and confirm
    `./sqlt.sh check NNN --answer <file>` fails that test. If nothing fails a test, change its data or drop it.
 5. Make sure `problems/NNN-slug/answer.sql` contains only the starter comments.
+6. If `explanation.md` includes alternative queries, check each one with `--answer` like in step 3.
 
 `--answer` runs don't record progress, so verifying doesn't touch the user's `./sqlt.sh list` status.
 
@@ -133,4 +175,5 @@ reference output as Markdown.
 
 Tell the user only the problem number, title, difficulty, and how to start (`open problem.md`,
 `./sqlt.sh check N --watch`). **Do not** show the reference solution, the hidden test contents, or which
-traps you planted. Mention that the solution is in `solution/reference.sql` for when they want it.
+traps you planted. Mention that the solution is in `solution/reference.sql` (with `solution/explanation.md`) for when they
+want it, and that problem.md ends with collapsed hints.

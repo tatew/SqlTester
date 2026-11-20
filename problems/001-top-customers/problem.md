@@ -89,3 +89,33 @@ Sort by `total_spent` from highest to lowest. Break ties by `customer_id`, lowes
 | 5 | Emma Schulz | 2 | 75.00 |
 
 Your query will also be run against several hidden datasets that use the same schema.
+
+## Hints
+
+Each hint gives away a little more than the one before it. Try the problem before you open them.
+
+<details>
+<summary>Hint 1</summary>
+
+Some rows should be thrown away *before* you count anything, and some customers should be thrown away
+*after* you count. SQL has a separate clause for each of those two steps.
+
+</details>
+
+<details>
+<summary>Hint 2</summary>
+
+`ordered_at` is a `DATETIME`, not a `DATE`. Think about how `'2024-12-31'` compares to
+`'2024-12-31 18:30:00'`. A range that includes its start and excludes its end
+(`>= start AND < next start`) is the safest way to say "during 2024".
+
+</details>
+
+<details>
+<summary>Hint 3</summary>
+
+The shape is: join `customers` to `orders`, filter on status and the 2024 date range in `WHERE`,
+`GROUP BY` the customer, keep groups with at least 2 orders in `HAVING`, then sort. Group by
+`customer_id`, not by `name`, because two different customers can have the same name.
+
+</details>

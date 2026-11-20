@@ -73,3 +73,34 @@ Sort by `department` alphabetically, then by `employee` alphabetically.
 | Sales | Sara Lind | 105000 |
 
 Your query will also be run against several hidden datasets that use the same schema.
+
+## Hints
+
+Each hint gives away a little more than the one before it. Try the problem before you open them.
+
+<details>
+<summary>Hint 1</summary>
+
+Split it into two questions. First, what is the highest salary in each department? Second, which
+employees earn exactly that amount in *their own* department?
+
+</details>
+
+<details>
+<summary>Hint 2</summary>
+
+Ties must all be returned, so anything that picks exactly one row per department (`LIMIT 1`,
+`ROW_NUMBER()`) won't work. Also check that each employee is compared against the maximum for
+their own department, not against the maximum of some other department.
+
+</details>
+
+<details>
+<summary>Hint 3</summary>
+
+Any of these approaches works: a correlated subquery
+(`WHERE e.salary = (SELECT MAX(...) FROM employees WHERE <same department>)`), a join to a derived table
+of `(department_id, max_salary)` on both columns, or `RANK()` over `PARTITION BY department_id` keeping
+rank 1. Join to `departments` to get the name, and remember that unassigned employees should be excluded.
+
+</details>
