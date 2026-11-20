@@ -1,0 +1,6 @@
+{
+  "title": "Support Agent Scorecard",
+  "difficulty": "medium",
+  "ordered": true,
+  "topics": ["LEFT JOIN", "COALESCE", "conditional aggregation", "CASE", "NULLs", "date ranges", "rounding"]
+}

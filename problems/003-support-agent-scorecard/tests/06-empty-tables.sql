@@ -1,0 +1,2 @@
+-- No agents and no tickets at all: the result must be empty (no single all-NULL row).
+-- Catches aggregating without GROUP BY.
