@@ -18,6 +18,7 @@ ${c.bold('sqlt')} — MySQL practice harness
   ./sqlt.sh list                   List problems and your progress
 
   ./sqlt.sh run   <problem>        Run your answer.sql against the seed data and print the result
+        --watch                 Re-run every time answer.sql is saved
   ./sqlt.sh check <problem>        Grade answer.sql against the seed + hidden test datasets
         --watch                 Re-grade every time answer.sql is saved
         --verbose               Show expected/actual tables for every failure
@@ -198,12 +199,14 @@ async function cmdCheck(problem, flags) {
   if (passed !== total) process.exitCode = 1;
 }
 
-async function cmdWatch(problem, flags) {
+/** Run `command` now and again every time the answer file is saved, until Ctrl+C. */
+async function cmdWatch(command, problem, flags) {
+  const file = flags.answer ? path.resolve(flags.answer) : problem.paths.answer;
   const runOnce = async () => {
     process.stdout.write('\x1Bc');
-    console.log(c.dim(`[watching ${rel(problem.paths.answer)} — Ctrl+C to stop]  ${new Date().toLocaleTimeString()}\n`));
+    console.log(c.dim(`[watching ${rel(file)} — Ctrl+C to stop]  ${new Date().toLocaleTimeString()}\n`));
     try {
-      await cmdCheck(loadProblem(problem.slug), flags);
+      await command(loadProblem(problem.slug), flags);
     } catch (err) {
       console.log(c.red(describeSqlError(err)));
     }
@@ -211,8 +214,8 @@ async function cmdWatch(problem, flags) {
   };
   await runOnce();
   let timer;
-  fs.watch(problem.dir, (_event, filename) => {
-    if (filename !== 'answer.sql') return;
+  fs.watch(path.dirname(file), (_event, filename) => {
+    if (filename !== path.basename(file)) return;
     clearTimeout(timer);
     timer = setTimeout(runOnce, 200);
   });
@@ -330,11 +333,11 @@ async function main() {
     case 'ls':
       return cmdList();
     case 'run':
-      return cmdRun(resolveProblem(arg), flags);
     case 'check':
     case 'test': {
+      const command = cmd === 'run' ? cmdRun : cmdCheck;
       const problem = resolveProblem(arg);
-      return flags.watch ? cmdWatch(problem, flags) : cmdCheck(problem, flags);
+      return flags.watch ? cmdWatch(command, problem, flags) : command(problem, flags);
     }
     case 'shell':
       return cmdShell(resolveProblem(arg));
